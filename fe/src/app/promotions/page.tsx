@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Check, Tag } from "lucide-react";
+import { ArrowRight, Calculator, Check, Tag } from "lucide-react";
 import Countdown from "@/components/countdown";
+import PromoCalculator from "@/components/promo-calculator";
 import Reveal from "@/components/reveal";
 import TreadCanvas from "@/components/tread-canvas";
 import { baht, patternBySlug, products, volumeDiscount } from "@/data/catalog";
@@ -36,6 +37,9 @@ export default function PromotionsPage() {
             <p className="mt-5 max-w-lg text-lg text-mute">
               ระยะเวลาโปรโมชั่น {thDate(promotions[0].start)} – {thDate(lastEnd)}
             </p>
+            <a href="#calculator" className="btn-amber mt-7">
+              <Calculator className="h-4 w-4" /> คำนวณส่วนลดของคุณ
+            </a>
           </div>
           <div>
             <p className="mb-3 text-sm text-mute">โปรโมชั่นจะสิ้นสุดใน</p>
@@ -101,6 +105,15 @@ export default function PromotionsPage() {
           </Reveal>
         </section>
       ))}
+
+      <section id="calculator" className="mx-auto mt-20 max-w-7xl scroll-mt-24 px-4 sm:px-6">
+        <Reveal>
+          <p className="text-xs font-semibold tracking-[0.25em] text-accent">CALCULATOR</p>
+          <h2 className="mt-3 font-display text-4xl font-black italic tracking-tight">คำนวณโปรโมชั่น</h2>
+          <p className="mb-8 mt-2 max-w-2xl text-mute">เลือกรุ่น ขนาด และจำนวน ผสมหลายรุ่นได้ ส่วนลดคิดจากจำนวนเส้นรวมทั้งหมด</p>
+        </Reveal>
+        <PromoCalculator />
+      </section>
 
       <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6">
         <Reveal>
