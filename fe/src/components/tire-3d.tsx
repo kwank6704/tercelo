@@ -76,9 +76,28 @@ function paintTexture(canvas: HTMLCanvasElement, pts: THREE.Vector2[], style: Tr
   }
 }
 
-type Props = { tread: TreadStyle; label: string; className?: string; speed?: number };
+export type TyreView = "angle" | "side" | "tread" | "back";
+export type Tire3DControls = { setView: (v: TyreView) => void; setAuto: (on: boolean) => void; zoom: (factor: number) => void };
 
-export default function Tire3D({ tread, label, className, speed = 0.55 }: Props) {
+type Props = {
+  tread: TreadStyle;
+  label: string;
+  className?: string;
+  speed?: number;
+  /** Orbit mode: drag/pinch to turn the tyre 360° in any direction instead of the hover parallax. */
+  orbit?: boolean;
+  controlsRef?: React.RefObject<Tire3DControls | null>;
+  onAutoChange?: (on: boolean) => void;
+};
+
+const VIEWS: Record<TyreView, { x: number; y: number }> = {
+  angle: { x: 0.12, y: -0.62 },
+  side: { x: 0, y: 0 },
+  tread: { x: 0.05, y: -Math.PI / 2 },
+  back: { x: 0, y: Math.PI },
+};
+
+export default function Tire3D({ tread, label, className, speed = 0.55, orbit = false, controlsRef, onAutoChange }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<{ repaint: (t: TreadStyle, l: string) => void } | null>(null);
 
@@ -89,7 +108,8 @@ export default function Tire3D({ tread, label, className, speed = 0.55 }: Props)
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(renderer.domElement);
-    renderer.domElement.style.touchAction = "pan-y";
+    // Orbit mode owns every gesture on the canvas; otherwise let the page scroll vertically.
+    renderer.domElement.style.touchAction = orbit ? "none" : "pan-y";
 
     const scene = new THREE.Scene();
     const pmrem = new THREE.PMREMGenerator(renderer);
@@ -197,42 +217,110 @@ export default function Tire3D({ tread, label, className, speed = 0.55 }: Props)
     scene.add(view);
 
     // --- Interaction ---
-    const target = { x: 0.12, y: -0.62 };
-    const current = { x: 0.12, y: -0.62 };
+    const target = { ...VIEWS.angle };
+    const current = { ...VIEWS.angle };
     let boost = 0;
     let dragVel = 0;
     let dragging = false;
     let lastX = 0;
+    let lastY = 0;
+    let yawVel = 0;
+    let auto = orbit;
+    let zoom = 1;
+    let zoomTarget = 1;
+    const pointers = new Map<number, { x: number; y: number }>();
+    let pinchDist = 0;
+
+    const setAuto = (on: boolean) => {
+      auto = on;
+      onAutoChange?.(on);
+    };
+    const clampPitch = (x: number) => Math.max(-1.35, Math.min(1.35, x));
 
     const onMove = (e: PointerEvent) => {
-      const r = host.getBoundingClientRect();
-      const nx = (e.clientX - r.left) / r.width - 0.5;
-      const ny = (e.clientY - r.top) / r.height - 0.5;
-      target.y = -0.62 + nx * 0.7;
-      target.x = 0.12 + ny * 0.4;
-      if (dragging) {
-        dragVel += (e.clientX - lastX) * 0.004;
-        lastX = e.clientX;
+      if (!orbit) {
+        const r = host.getBoundingClientRect();
+        const nx = (e.clientX - r.left) / r.width - 0.5;
+        const ny = (e.clientY - r.top) / r.height - 0.5;
+        target.y = -0.62 + nx * 0.7;
+        target.x = 0.12 + ny * 0.4;
+        if (dragging) {
+          dragVel += (e.clientX - lastX) * 0.004;
+          lastX = e.clientX;
+        }
+        return;
       }
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size >= 2) {
+        const [a, b] = [...pointers.values()];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinchDist) zoomTarget = Math.max(0.6, Math.min(1.7, zoomTarget * (pinchDist / d)));
+        pinchDist = d;
+        return;
+      }
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      target.y += dx * 0.009;
+      target.x = clampPitch(target.x + dy * 0.009);
+      yawVel = dx * 0.5;
     };
-    const onEnter = () => (boost = 1);
+    const onEnter = () => (boost = orbit ? 0 : 1);
     const onLeave = () => {
       boost = 0;
       dragging = false;
-      target.x = 0.12;
-      target.y = -0.62;
+      if (!orbit) Object.assign(target, VIEWS.angle);
     };
     const onDown = (e: PointerEvent) => {
       dragging = true;
       lastX = e.clientX;
+      lastY = e.clientY;
+      if (orbit) {
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        renderer.domElement.setPointerCapture?.(e.pointerId);
+        pinchDist = 0;
+        yawVel = 0;
+        if (auto) setAuto(false);
+      }
     };
-    const onUp = () => (dragging = false);
+    const onUp = (e: PointerEvent) => {
+      dragging = false;
+      pointers.delete(e.pointerId);
+      pinchDist = 0;
+    };
+    const onWheel = (e: WheelEvent) => {
+      // Zoom only with ctrl/trackpad-pinch so normal scrolling still scrolls the page.
+      if (!orbit || !e.ctrlKey) return;
+      e.preventDefault();
+      zoomTarget = Math.max(0.6, Math.min(1.7, zoomTarget * (e.deltaY > 0 ? 1.08 : 0.92)));
+    };
     host.addEventListener("pointermove", onMove);
     host.addEventListener("pointerenter", onEnter);
     host.addEventListener("pointerleave", onLeave);
     host.addEventListener("pointerdown", onDown);
+    host.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
 
+    if (controlsRef) {
+      controlsRef.current = {
+        setView: (v) => {
+          const to = VIEWS[v];
+          // Take the short way round from wherever the user left it.
+          const turns = Math.round((target.y - to.y) / (Math.PI * 2));
+          target.y = to.y + turns * Math.PI * 2;
+          target.x = to.x;
+          yawVel = 0;
+          setAuto(false);
+        },
+        setAuto,
+        zoom: (f) => (zoomTarget = Math.max(0.6, Math.min(1.7, zoomTarget * f))),
+      };
+    }
+
+    let baseZ = 8.4;
     const resize = () => {
       const { clientWidth: w, clientHeight: h } = host;
       if (!w || !h) return;
@@ -241,7 +329,7 @@ export default function Tire3D({ tread, label, className, speed = 0.55 }: Props)
       renderer.domElement.style.height = "100%";
       camera.aspect = w / h;
       // Keep the whole tyre in frame on narrow screens.
-      camera.position.z = 8.4 / Math.min(1, Math.max(0.55, w / h));
+      baseZ = 8.4 / Math.min(1, Math.max(0.55, w / h));
       camera.updateProjectionMatrix();
     };
     const ro = new ResizeObserver(resize);
@@ -264,6 +352,13 @@ export default function Tire3D({ tread, label, className, speed = 0.55 }: Props)
       angVel += (base * (1 + boost * 1.6) - angVel) * Math.min(1, dt * 2.5);
       dragVel *= Math.pow(0.04, dt);
       spin.rotation.y -= (angVel + dragVel) * dt;
+      if (orbit && !dragging) {
+        if (auto) target.y += dt * 0.5;
+        target.y += yawVel * dt * 0.02;
+        yawVel *= Math.pow(0.02, dt);
+      }
+      zoom += (zoomTarget - zoom) * Math.min(1, dt * 6);
+      camera.position.z = baseZ * zoom;
       current.x += (target.x - current.x) * Math.min(1, dt * 4);
       current.y += (target.y - current.y) * Math.min(1, dt * 4);
       view.rotation.x = current.x;
@@ -281,7 +376,10 @@ export default function Tire3D({ tread, label, className, speed = 0.55 }: Props)
       host.removeEventListener("pointerenter", onEnter);
       host.removeEventListener("pointerleave", onLeave);
       host.removeEventListener("pointerdown", onDown);
+      host.removeEventListener("wheel", onWheel);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      if (controlsRef) controlsRef.current = null;
       scene.traverse((o) => {
         if (o instanceof THREE.Mesh) {
           o.geometry.dispose();
@@ -298,7 +396,7 @@ export default function Tire3D({ tread, label, className, speed = 0.55 }: Props)
     };
     // The scene is built once; tread/label changes are applied by the effect below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [speed]);
+  }, [speed, orbit]);
 
   useEffect(() => {
     apiRef.current?.repaint(tread, label);

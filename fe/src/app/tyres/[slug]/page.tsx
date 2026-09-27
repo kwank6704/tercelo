@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Sparkles } from "lucide-react";
-import Tire3D from "@/components/tire-3d-lazy";
+import TyreViewer from "@/components/tyre-viewer";
 import TreadCanvas from "@/components/tread-canvas";
 import RatingRadar from "@/components/rating-radar";
 import SizeTable from "@/components/size-table";
@@ -37,9 +37,7 @@ export default async function PatternPage({ params }: PageProps<"/tyres/[slug]">
           {cat.label}
         </div>
         <div className="mx-auto grid max-w-7xl items-center gap-4 px-4 pb-16 pt-8 sm:px-6 lg:grid-cols-2">
-          <div className="relative order-2 h-[380px] sm:h-[520px] lg:order-1">
-            <Tire3D tread={p.tread} label={p.name} className="absolute inset-0 cursor-grab" speed={0.4} />
-          </div>
+          <TyreViewer tread={p.tread} label={p.name} className="order-2 h-[420px] sm:h-[540px] lg:order-1" />
           <div className="order-1 lg:order-2">
             <Link href="/tyres" className="inline-flex items-center gap-1.5 text-sm text-mute hover:text-white">
               <ArrowLeft className="h-4 w-4" /> ยางทั้งหมด
