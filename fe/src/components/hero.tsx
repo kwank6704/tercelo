@@ -106,9 +106,9 @@ export default function Hero() {
           <AnimatePresence mode="wait">
             <motion.span
               key={pat.category}
-              initial={{ opacity: 0, x: 80, filter: "blur(8px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, x: -80, filter: "blur(8px)" }}
+              initial={{ opacity: 0, x: 80 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -80 }}
               transition={{ duration: 0.6, ease }}
               className="block"
             >
@@ -188,9 +188,9 @@ export default function Hero() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.85, rotate: -8 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ delay: 0.2, duration: 1.1, ease }}
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 1, ease }}
             className="relative -mx-4 h-[420px] sm:h-[520px] lg:mx-0 lg:h-[680px]"
           >
             <Tire3D tread={pat.tread} label={pat.name} className="absolute inset-0 cursor-grab active:cursor-grabbing" />
@@ -200,7 +200,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
-                className="pointer-events-none absolute bottom-4 right-4 max-w-[240px] rounded-2xl border border-line bg-ink/70 p-4 backdrop-blur-md sm:bottom-10"
+                className="pointer-events-none absolute bottom-4 right-4 max-w-[240px] rounded-2xl border border-line bg-ink/90 p-4 sm:bottom-10"
               >
                 <p className="text-[10px] font-semibold tracking-[0.25em] text-accent">{pat.category.toUpperCase()} · TERCELO</p>
                 <p className="font-display text-xl font-bold italic">{pat.name}</p>

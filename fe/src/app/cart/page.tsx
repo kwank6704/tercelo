@@ -49,18 +49,22 @@ export default function CartPage() {
             {lines.map(({ id, qty, product: p }) => {
               const pat = patternBySlug[p.pattern];
               return (
-                <div key={id} className="group flex items-center gap-5 rounded-3xl border border-line bg-card p-4 sm:p-5">
+                // Phones: controls drop to their own row under the tyre so large text never overflows.
+                <div
+                  key={id}
+                  className="group grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-5 gap-y-3 rounded-3xl border border-line bg-card p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:p-5"
+                >
                   <div className="h-28 w-12 shrink-0">
                     <TreadCanvas tread={pat.tread} className="h-full w-full" />
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold tracking-wider text-accent">{pat.name}</p>
                     <p className="font-display text-2xl font-bold">{p.size}</p>
                     <p className="text-sm text-mute">
                       {p.loadSpeed} · {baht(p.price)} / เส้น
                     </p>
                   </div>
-                  <div className="flex flex-col items-end gap-3">
+                  <div className="col-span-2 flex flex-row-reverse flex-wrap items-center justify-between gap-3 sm:col-span-1 sm:flex-col sm:items-end">
                     <p className="font-display text-xl font-bold tabular-nums">{baht(p.price * qty)}</p>
                     <div className="flex items-center gap-3">
                       <QtyStepper value={qty} max={p.stock} onChange={(n) => setQty(id, n)} />

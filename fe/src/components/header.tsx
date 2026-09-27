@@ -35,7 +35,7 @@ export default function Header() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
-        scrolled || menu ? "border-b border-line bg-ink/80 backdrop-blur-xl" : "bg-transparent"
+        scrolled || menu ? "border-b border-line bg-ink/95 md:bg-ink/80 md:backdrop-blur-xl" : "bg-transparent"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
