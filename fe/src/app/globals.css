@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Theme tokens. "white" is remapped to the foreground colour so utilities like
+ * text-white / bg-white/5 flip automatically; "coal" stays dark for text on amber.
+ */
+@theme {
+  --color-ink: var(--t-bg);
+  --color-surface: var(--t-surface);
+  --color-card: var(--t-card);
+  --color-line: var(--t-line);
+  --color-mute: var(--t-mute);
+  --color-white: var(--t-fg);
+  --color-accent: var(--t-accent);
+  --color-coal: #0a0a0b;
+  --color-amber: #f2a516;
+  --color-amber-deep: #c77700;
+  --font-display: var(--font-kanit), system-ui, sans-serif;
+  --font-sans: var(--font-plex), system-ui, sans-serif;
+}
+
+:root,
+[data-theme="light"] {
+  --t-bg: #f5f4f0;
+  --t-surface: #ffffff;
+  --t-card: #ffffff;
+  --t-line: rgb(20 20 25 / 0.1);
+  --t-mute: #62626b;
+  --t-fg: #141417;
+  --t-accent: #b56d00;
+  --stage: #ecebe6;
+  --grad-mid: #e89a10;
+  --sw-1: #e9e8e3;
+  --sw-2: #ffffff;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --t-bg: #0a0a0b;
+  --t-surface: #121214;
+  --t-card: #17171a;
+  --t-line: rgb(255 255 255 / 0.08);
+  --t-mute: #9a9aa2;
+  --t-fg: #f4f4f5;
+  --t-accent: #f2a516;
+  --stage: #26262b;
+  --grad-mid: #ffd27a;
+  --sw-1: #2a2a2e;
+  --sw-2: #111113;
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ink);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--t-fg);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+::selection {
+  background: var(--color-amber);
+  color: var(--color-coal);
+}
+
+@utility btn-amber {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-amber);
+  color: var(--color-coal);
+  padding: 0.8rem 1.5rem;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 10px 40px -10px rgb(242 165 22 / 0.6);
+  &:hover {
+    transform: translateY(-2px);
+    background: #ffb629;
+    box-shadow: 0 16px 50px -10px rgb(242 165 22 / 0.8);
+  }
+}
+
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-line);
+  background: color-mix(in oklab, var(--t-fg) 4%, transparent);
+  padding: 0.8rem 1.5rem;
+  font-weight: 500;
+  transition: border-color 0.2s, background 0.2s;
+  &:hover {
+    border-color: rgb(242 165 22 / 0.6);
+    background: rgb(242 165 22 / 0.08);
+  }
+}
+
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(242 165 22 / 0.55);
+}
+
+@utility select-field {
+  appearance: none;
+  width: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid var(--color-line);
+  background: color-mix(in oklab, var(--t-fg) 4%, transparent)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa2' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 0.9rem center;
+  padding: 0.75rem 2.2rem 0.75rem 1rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  &:focus {
+    outline: none;
+    border-color: var(--color-amber);
+  }
+  & option {
+    background: var(--t-card);
+  }
+}
+
+/* Road markings streaming past under the hero */
+@keyframes road {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -240px;
+  }
+}
+.road-lines {
+  background-image: linear-gradient(90deg, rgb(242 165 22 / 0.7) 0 120px, transparent 120px 240px);
+  background-size: 240px 100%;
+  animation: road 0.9s linear infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  animation: marquee 40s linear infinite;
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .road-lines,
+  .marquee {
+    animation: none;
+  }
+}
+
+/* Try-on stage */
+@keyframes wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.wheel-spin {
+  animation: wheel-spin 0.7s linear infinite;
+}
+@keyframes car-bob {
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+.car-bob {
+  animation: car-bob 0.35s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wheel-spin,
+  .car-bob {
+    animation: none;
+  }
+}
