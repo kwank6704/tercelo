@@ -33,18 +33,8 @@ export default function RatingRadar({ ratings }: { ratings: Pattern["ratings"] }
           const [x, y] = pt(i, 1);
           return <line key={i} x1={c} y1={c} x2={x} y2={y} stroke="currentColor" strokeOpacity={0.1} />;
         })}
-        <motion.polygon
-          points={data}
-          fill="rgba(242,165,22,0.22)"
-          stroke="#f2a516"
-          strokeWidth={2}
-          strokeLinejoin="round"
-          initial={{ scale: 0, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-          style={{ transformOrigin: `${c}px ${c}px` }}
-        />
+        {/* Plain SVG + CSS fade: iOS Safari leaves framer's scale transform on SVG polygons stuck at 0. */}
+        <polygon points={data} fill="rgba(242,165,22,0.22)" stroke="#f2a516" strokeWidth={2} strokeLinejoin="round" className="radar-fade" />
         {axes.map((a, i) => {
           const [x, y] = pt(i, 1.22);
           return (

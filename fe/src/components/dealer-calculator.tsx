@@ -4,45 +4,13 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Crown } from "lucide-react";
 import { baht } from "@/data/catalog";
-
-const tiersB = [
-  { min: 60, rate: 0.2 },
-  { min: 40, rate: 0.175 },
-  { min: 20, rate: 0.15 },
-  { min: 12, rate: 0.1 },
-];
-const tiersC = [
-  { min: 60, rate: 0.1 },
-  { min: 40, rate: 0.075 },
-  { min: 20, rate: 0.05 },
-  { min: 12, rate: 0.025 },
-];
-const rateOf = (tiers: typeof tiersB, q: number) => tiers.find((t) => q >= t.min)?.rate ?? 0;
+import { dealerPlans } from "@/lib/promo";
 
 export default function DealerCalculator() {
   const [qty, setQty] = useState(60);
   const [avg, setAvg] = useState(1667);
   const gross = qty * avg;
-
-  const rA = 0.2;
-  const rB = rateOf(tiersB, qty);
-  const rC = rateOf(tiersC, qty);
-  const payC = gross * (1 - rC);
-  const voucher = payC * 0.1;
-
-  const plans = [
-    { id: "A", name: "Kick Starter A", pay: gross * (1 - rA), save: gross * rA, note: "ส่วนลด 20% คงที่ · ภายใน 14 วัน · ไม่เกิน 3 คำสั่งซื้อ", voucher: 0, rate: rA },
-    { id: "B", name: "Kick Starter B", pay: gross * (1 - rB), save: gross * rB, note: `ส่วนลดตามจำนวน ${rB * 100}% · ภายใน 21 วัน`, voucher: 0, rate: rB },
-    {
-      id: "C",
-      name: "Kick Starter C",
-      pay: payC,
-      save: gross * rC + voucher,
-      note: `ลดทันที ${rC * 100}% + Credit Voucher ${baht(voucher)} ใช้กับคำสั่งซื้อถัดไป (ขั้นต่ำ ${baht(voucher / 0.2)})`,
-      voucher,
-      rate: rC,
-    },
-  ];
+  const plans = dealerPlans(qty, gross);
   const best = plans.reduce((a, b) => (b.save > a.save ? b : a));
   const maxSave = Math.max(...plans.map((p) => p.save), 1);
 

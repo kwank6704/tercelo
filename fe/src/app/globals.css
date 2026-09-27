@@ -190,3 +190,12 @@ body {
     animation: none;
   }
 }
+
+@keyframes radar-fade {
+  from {
+    opacity: 0;
+  }
+}
+.radar-fade {
+  animation: radar-fade 0.9s ease-out;
+}
