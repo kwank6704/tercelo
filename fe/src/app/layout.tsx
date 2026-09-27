@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="th" data-theme="light" suppressHydrationWarning className={`${kanit.variable} ${plex.variable} h-full antialiased`}>
+    <html lang="th" data-theme="light" data-font="md" suppressHydrationWarning className={`${kanit.variable} ${plex.variable} h-full antialiased`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

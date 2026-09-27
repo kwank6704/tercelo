@@ -7,6 +7,7 @@ import { Menu, ShoppingBag, X } from "lucide-react";
 import Logo from "./logo";
 import { useCart } from "./cart";
 import ThemeToggle from "./theme-toggle";
+import FontSizeControl from "./font-size-control";
 
 const nav = [
   { href: "/tyres", label: "ยางทั้งหมด" },
@@ -57,7 +58,11 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          {/* On phones these live in the menu so the header never overflows at large text sizes. */}
+          <div className="hidden items-center gap-2 md:flex">
+            <FontSizeControl />
+            <ThemeToggle />
+          </div>
           <button
             onClick={() => setOpen(true)}
             className="relative flex h-10 items-center gap-2 rounded-full border border-line bg-white/5 px-4 text-sm transition hover:border-amber/60 hover:bg-amber/10"
@@ -85,6 +90,13 @@ export default function Header() {
               {n.label}
             </Link>
           ))}
+          <div className="flex items-center justify-between pt-5">
+            <span className="text-sm text-mute">การแสดงผล</span>
+            <div className="flex items-center gap-2">
+              <FontSizeControl />
+              <ThemeToggle />
+            </div>
+          </div>
         </nav>
       )}
     </header>
