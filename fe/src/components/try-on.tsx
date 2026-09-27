@@ -106,27 +106,30 @@ export default function TryOn() {
           ) : (
             <>
               <div className="relative overflow-hidden rounded-3xl border border-line bg-[linear-gradient(to_bottom,var(--stage),var(--color-card))]">
-                <div className="pointer-events-none absolute left-5 top-4 z-10">
-                  <p className="text-[10px] font-semibold tracking-[0.25em] text-mute">{car.label.toUpperCase()}</p>
-                  <p className="font-display text-2xl font-black italic">{picked ? picked.size : fmtSize(stock)}</p>
-                  {pat && <p className="text-sm font-semibold text-accent">{pat.name}</p>}
+                {/* In the flow (not floating over the car) so it wraps cleanly at large text sizes. */}
+                <div className="flex flex-wrap items-start justify-between gap-3 px-5 pt-4">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-semibold tracking-[0.25em] text-mute">{car.label.toUpperCase()}</p>
+                    <p className="font-display text-2xl font-black italic">{picked ? picked.size : fmtSize(stock)}</p>
+                    {pat && <p className="text-sm font-semibold text-accent">{pat.name}</p>}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowStock((s) => !s)}
+                      className={`flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs transition ${showStock ? "border-sky-400 bg-sky-400/15 text-sky-600 dark:text-sky-300" : "border-line bg-card/80"}`}
+                    >
+                      <CircleDot className="h-3.5 w-3.5" /> ขนาดเดิม
+                    </button>
+                    <button
+                      onClick={() => setDriving((d) => !d)}
+                      className="grid h-9 w-9 place-items-center rounded-full border border-line bg-card/80"
+                      aria-label={driving ? "หยุด" : "ขับ"}
+                    >
+                      {driving ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
-                <div className="absolute right-4 top-4 z-10 flex gap-2">
-                  <button
-                    onClick={() => setShowStock((s) => !s)}
-                    className={`flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs transition ${showStock ? "border-sky-400 bg-sky-400/15 text-sky-600 dark:text-sky-300" : "border-line bg-card/80"}`}
-                  >
-                    <CircleDot className="h-3.5 w-3.5" /> ขนาดเดิม
-                  </button>
-                  <button
-                    onClick={() => setDriving((d) => !d)}
-                    className="grid h-9 w-9 place-items-center rounded-full border border-line bg-card/80"
-                    aria-label={driving ? "หยุด" : "ขับ"}
-                  >
-                    {driving ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  </button>
-                </div>
-                <div className="aspect-[16/8] w-full px-2 pt-12 sm:aspect-[16/7]">
+                <div className="aspect-[16/7] w-full px-2">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={car.id}
@@ -185,7 +188,7 @@ export default function TryOn() {
                 <label key={key}>
                   <span className="mb-1 block text-xs text-mute">{label}</span>
                   <select
-                    className="select-field"
+                    className="select-field !bg-[position:right_0.5rem_center] !pl-3 !pr-7"
                     value={stock[key]}
                     onChange={(e) => (setStock((s) => ({ ...s, [key]: +e.target.value })), setPickedId(null))}
                   >
