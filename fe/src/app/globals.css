@@ -57,6 +57,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Safety net: nothing may make the page scroll sideways (clip keeps position: sticky working). */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background: var(--color-ink);
   color: var(--t-fg);
@@ -209,10 +215,16 @@ body {
 .text-shimmer {
   background: linear-gradient(100deg, var(--t-accent) 0%, var(--t-accent) 35%, var(--grad-mid) 48%, #fff4d6 50%, var(--grad-mid) 52%, var(--t-accent) 65%, var(--t-accent) 100%);
   background-size: 200% auto;
+  background-position: 30% center;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shimmer 4.5s linear infinite;
+}
+/* The moving shimmer repaints text every frame; keep it to desktops, phones get the still gradient. */
+@media (hover: hover) and (pointer: fine) {
+  .text-shimmer {
+    animation: shimmer 4.5s linear infinite;
+  }
 }
 
 @keyframes streak {
@@ -231,16 +243,22 @@ body {
 .streak {
   background: linear-gradient(90deg, transparent, rgb(242 165 22 / 0.55), transparent);
   animation: streak 2.5s linear infinite;
+  will-change: transform, opacity;
+}
+@media (max-width: 639px) {
+  .streak:nth-child(even) {
+    display: none;
+  }
 }
 
 @keyframes glow-breathe {
   50% {
-    opacity: 0.65;
-    transform: scale(1.06);
+    opacity: 0.6;
   }
 }
 .hero-glow {
   animation: glow-breathe 6s ease-in-out infinite;
+  will-change: opacity;
 }
 
 @keyframes shine {

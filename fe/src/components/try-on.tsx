@@ -79,10 +79,10 @@ export default function TryOn() {
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         {/* Stage */}
-        <div className="space-y-4">
-          <div className="inline-flex rounded-full border border-line bg-card p-1 text-sm" role="tablist">
+        <div className="min-w-0 space-y-4">
+          <div className="flex w-full rounded-full border border-line bg-card p-1 text-sm sm:inline-flex sm:w-auto" role="tablist">
             {(
               [
                 ["sample", "รถตัวอย่าง", CarIcon],
@@ -94,7 +94,7 @@ export default function TryOn() {
                 role="tab"
                 aria-selected={mode === id}
                 onClick={() => setMode(id)}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 transition ${mode === id ? "bg-amber font-semibold text-coal" : "text-mute hover:text-white"}`}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 transition sm:flex-none sm:px-4 ${mode === id ? "bg-amber font-semibold text-coal" : "text-mute hover:text-white"}`}
               >
                 <Icon className="h-4 w-4" /> {text}
               </button>
@@ -203,7 +203,7 @@ export default function TryOn() {
         </div>
 
         {/* Fit report + picks */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           {picked && fit && pat ? (
             <motion.div
               key={picked.id}
